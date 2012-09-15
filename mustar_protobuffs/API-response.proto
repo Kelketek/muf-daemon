@@ -1,0 +1,68 @@
+package MustarAPI;
+
+import "ref.proto";
+import "dict.proto";
+
+// This file has all the possible response messages when making a request
+// using the definitions in API-request.
+// 
+
+enum APIResponseType
+{
+    API_STATUS = 0;
+    LIST_OF_DBREFS = 1;
+    LIST_OF_PROPS = 3;
+    LIST_OF_NUMBERS = 4;
+    DICT = 5;
+    RAW_BYTES = 6;
+}
+
+message APIResponse
+{
+    required APIResponseType type = 1;
+    optional string instance_id = 2; // Unique Identifier for the target requester, given in request
+
+    optional ResponseAPIStatus status_fields = 3;
+    optional ResponseListOfRefs list_of_dbrefs_fields = 4;
+    optional ResponseListOfNumbers list_of_numbers_fields = 5;
+    optional ResponseListOfProps list_of_props_fields = 6;
+    optional ResponseDict dict_fields = 7;
+    optional ResponseRawBytes raw_bytes_fields = 8;
+}
+
+// Sent if something fails or does not have a data response.
+message ResponseAPIStatus
+{
+  required bool success = 1;     // True if something succeeded.
+  optional string errorname = 2; // Name of the error.
+  optional string message = 3;   // Details on the error
+}
+
+// Simply contains a list of dbrefs.
+message ResponseListOfRefs
+{
+  repeated MuStarDatabase.Ref object_ids = 1;
+}
+//Contains a list of numbers.
+message ResponseListOfNumbers
+{
+  repeated int32 numbers = 1;
+}
+
+// Contains a list of props.
+message ResponseListOfProps
+{
+  repeated string props = 1;
+}
+
+// Contains a set of key-value pairs.
+message ResponseDict
+{
+  repeated MuStar.DictEntry entries = 1;
+}
+
+// Contains a blob of raw bytes.
+message ResponseRawBytes
+{
+  required bytes blob = 1;
+}

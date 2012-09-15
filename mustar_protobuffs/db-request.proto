@@ -1,0 +1,170 @@
+package MuStarDatabase;
+
+import "dict.proto";
+import "objects.proto";
+import "ref.proto";
+
+//
+// This file has all the possible database request messages.
+//
+
+enum DBRequestType {
+    REFS = 0;
+    PLAYER_REQ = 1;
+    OBJECTS_REQ = 2;
+    DELETE = 3;
+    CREATE_PLAYER = 4;
+    CREATE_PROGRAM = 5;
+    SET_OBJECT_DATA = 6;
+    GET_PROPS = 7;
+    GET_PROPS_WITH_PREFIX = 8;
+    SET_PROPS = 9;
+    CLEAR_PROP = 10;
+    LIST_PROPS = 11;
+    MOVE_OBJECT = 12;
+    SET_OWNER = 13;
+}
+
+// Zeta: Added playerRef field for permissions checking.
+message RequestMessage
+{
+    required DBRequestType type = 1;
+    required Ref player_ref = 2; // The player on whose behalf we are performing the request.
+
+    optional RequestRefs request_refs_fields = 3;
+    optional RequestPlayerObject request_player_object_fields = 4;
+    optional RequestObjects request_objects_fields = 5;
+    optional SetObjectData set_object_data_fields = 6;
+    optional DeleteObject delete_object_fields = 7;
+    optional CreatePlayer create_player_fields = 8;
+    optional CreateProgram create_program_fields = 9;
+    optional GetProps get_props_fields = 10;
+    optional GetPropsWithPrefix get_prop_prefix_fields = 11;
+    optional SetProps set_props_fields = 12;
+    optional ClearProps clear_prop_fields = 17;
+    optional ListProps list_props_fields = 13;
+    optional MoveObject move_object_fields = 14;
+    optional SetOwner set_owner_fields = 18;
+}
+
+// This is sent when it is desired to find out all the ref IDs of a
+// particular object type(s).  Typically this is used for getting programs.
+// This is also a prototype-only message, used to simplify things.
+// Response message: ListOfRefs
+message RequestRefs
+{
+  repeated ObjectType type_to_get = 1;
+}
+
+// This is sent primarily while logging in - it allows one to look up a player
+// by name instead of ref.  Typically used by the connection server.
+// Response message: ResponsePlayer or ResponseStatus (if failure)
+message RequestPlayerObject
+{
+  required string player_name = 1;
+}
+
+// Used to request data associated with the provided object IDs.
+// Response message: ResponseObjects
+message RequestObjects
+{
+  repeated Ref object_ids = 1;
+}
+
+// Used to delete players and programs, for the moment.
+// Response message: ResponseStatus
+message DeleteObject
+{
+  required Ref object_id = 1;
+}
+
+// Used to create a player.
+// Response message: ResponsePlayer or ResponseStatus (if failure)
+message CreatePlayer
+{
+  required string name = 1;
+  required string password = 2;   // Plaintext for now!
+  required Ref location = 3;
+  optional bool administrator = 4 [default = false];
+}
+
+// Used to create programs.
+// Response message: ResponseProgram or ResponseStatus (if failure)
+message CreateProgram
+{
+  required string name = 1;
+}
+
+// Hacky catch-all message to set data on existing objects.
+// Currently like this for simplicity, but will be improved for the next
+// prototype version.
+// Response message: ResponseStatus
+message SetObjectData
+{
+  required Ref object_id = 1;  // What to change data on
+  optional string object_name = 2;
+  optional string object_description = 3;
+  optional string password = 4;         // For players
+  optional bool administrator = 5;      // For players
+  repeated string commands = 6;         // For programs
+}
+
+// Retrieves fields on an object.
+// Response message: ResponseProps or ResponseStatus (if error)
+message GetProps
+{
+  required Ref object_id = 1;
+  repeated string prop_keys = 2;
+}
+
+// Gets fields on an object based on a prefix. If prefix is the
+// empty string, retrieves all fields.
+// Response message: ResponseProps or ResponseStatus (if error)
+message GetPropsWithPrefix
+{
+  required Ref object_id = 1;
+  required string prefix = 2;
+}
+
+// Sets fields on an object.
+// Response message: ResponseStatus
+message SetProps
+{
+  required Ref object_id = 1;
+  repeated MuStar.DictEntry props = 2;
+}
+
+// Clears a set of props on an object.
+// Response message: ResponseStatus
+message ClearProps
+{
+  required Ref object_id = 1;
+  repeated string prop_keys = 2;
+}
+
+// Tries to retrieve a list of prop keys for
+// an object matching an optional prefix. If prefix is the
+// empty string, returns all props.
+// Response message: ResponseProps or ResponseStatus (if error)
+message ListProps
+{
+  required Ref object_id = 1;
+  required string prefix = 2;
+  // optional bool get_system_props = 3 [default=false];
+}
+
+// Tries to move an object to a new location.
+// Response message: ResponseStatus
+message MoveObject
+{
+  required Ref object_id = 1;
+  required Ref destination_id = 2;
+}
+
+// Tries to set the owner of an object.
+// Response message: ResponseStatus
+message SetOwner
+{
+  required Ref object_id = 1;
+  required Ref owner_id = 2; // Should be a player.
+}

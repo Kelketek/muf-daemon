@@ -1,0 +1,78 @@
+package MuStarDatabase;
+
+import "ref.proto";
+import "objects.proto";
+import "dict.proto";
+
+//
+// This file has all the possible response messages when making a request
+// using the definitions in db-request.
+//
+
+// TODO: The 'RESP' on these is superfluous; remove it.
+enum DBResponseType
+{
+    STATUS = 0;
+    LIST_OF_REFS = 1;
+    PLAYER_RESP = 2;
+    PROGRAM_RESP = 3;
+    OBJECTS_RESP = 4;
+    PROPS_RESP = 5;
+}
+
+message DBResponse
+{
+    required DBResponseType type = 1;
+
+    optional ResponseStatus status_fields = 2;
+    optional ResponseListOfRefs list_of_refs_fields = 3;
+    optional ResponsePlayer player_fields = 4;
+    optional ResponseProgram program_fields = 6;
+    optional ResponseObjects object_fields = 5;
+    optional ResponseProps props_fields = 7;
+}
+
+// Sent if something fails or does not have a data response.
+message ResponseStatus
+{
+  required bool success = 1;     // True if something succeeded.
+  optional Ref object_id = 2;  // The ID which errored out.
+  optional string message = 3;   // Used if failure to describe error.
+}
+
+// Simply contains a list of refs.
+message ResponseListOfRefs
+{
+  repeated Ref object_ids = 1;
+}
+
+// For convenience of the connection manager, and others.  Contains a single
+// player object.
+// Zeta: Changing this to return an ObjectBase instead, since I removed
+// ObjectBase from ObjectPlayer.
+message ResponsePlayer
+{
+  required ObjectBase player = 1;
+}
+
+// Contains a single program object.
+message ResponseProgram
+{
+  required ObjectBase program = 1;
+}
+
+// Contains a list of full object data, plus a list of object IDs which failed 
+// to be retrieved.
+// Zeta: Changed this to not use SerializedObjects because it only serializes
+// twice
+message ResponseObjects
+{
+  repeated ObjectBase objects = 1;
+  repeated ResponseStatus failed_objects = 2; // Will have object_id set
+}
+
+// Contains a returned list of property keys and their values.
+message ResponseProps
+{
+  repeated MuStar.DictEntry entries = 1;
+}

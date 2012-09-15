@@ -1,0 +1,5 @@
+package ProtobufMustarTests;
+
+message Dummy {
+	required string testmessage = 1;
+}

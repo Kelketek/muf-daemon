@@ -1,0 +1,60 @@
+package MuStarDatabase;
+
+import "ref.proto";
+
+//
+// This file has message definitions related to the various object types
+// the prototype database can support.
+//
+
+// Valid types of objects
+enum ObjectType
+{
+  PROGRAM = 1;
+  ROOM = 2;
+  PLAYER = 3;
+}
+
+// Common attributes of all objects
+message ObjectBase
+{
+  required Ref ref = 1;
+  required string name = 2;
+  required string description = 3;
+  required ObjectType type = 4;
+
+  required Ref owner = 5;
+  repeated Ref possessions = 6;
+  required Ref location = 7;
+  repeated Ref contents = 8;
+  repeated Ref commands = 9;
+
+  repeated Ref prototypes = 10;
+  
+
+  optional ObjectProgram prog = 11;
+  optional ObjectRoom room = 12;
+  optional ObjectPlayer player = 13;
+}
+
+// For now, represents plug-in programs that are activated via a command,
+// not an in-game program (such as MUF or MPI).
+message ObjectProgram   
+{
+  repeated string command_name = 2; // Multiple commands can run the same prog
+  optional bytes code = 3;  // This is the actual code to run, if any.
+                            // The desc may also be code, if this is not set
+}
+
+// Additional attributes for a room
+message ObjectRoom
+{
+  //repeated Ref contents = 2;  // Lists who is in the room
+}
+
+// Additional attributes for a player
+message ObjectPlayer
+{
+  required string password = 2;
+  required bool administrator = 3 [default=false];
+}

@@ -1,0 +1,291 @@
+package MustarAPI;
+
+import "ref.proto";
+import "dict.proto";
+
+//
+// This file has all the possible API request messages.
+//
+
+enum APIRequestType {
+    GET_PROPS = 0;
+    GET_PROPDIR = 1;
+    SET_PROPS = 2;
+    SET_PROPDIR = 3;
+    REMOVE_PROPS = 4;
+    REMOVE_PROPDIR = 5;
+    NOTIFY_OBJECTS = 6;
+    NOTIFY_ROOM = 7;
+    LOOKUP_NAME_FROM_LOCATION = 8;
+    GET_PLAYER_BY_NAME = 9;
+    GET_OWNER = 10;
+    GET_LOCATION = 11;
+    GET_TYPE = 12;
+    GET_EXITS = 13;
+    GET_CONTENTS = 14;
+    GET_OBJECT_HOME = 15;
+    CREATE_OBJECT = 16;
+    DELETE_OBJECT = 17;
+    UNDELETE_OBJECT = 18;
+    MOVE_OBJECT = 19;
+    GET_OBJECT_PROTOTYPES = 20;
+    SET_OBJECT_PROTOTYPES = 21;
+    CONVERT_OBJECT = 22;
+    CHECK_PASSWORD = 23;
+    CHANGE_PASSWORD = 24;
+    GET_ALL_PROPS = 25;
+    GET_CONNECTED_PLAYERS = 26; // Response to this should be ResponseListOfRefs or ResponseAPIStatus
+}
+
+// All API requests will be done through this message type.
+message RequestMessage
+{
+    required APIRequestType type = 1;
+    required MuStarDatabase.Ref player_ref = 2; // The player on whose behalf we are performing the request.
+
+    optional RequestGetProps request_get_props_fields = 3;
+    optional RequestGetAllProps request_get_all_props_fields = 4;
+    optional RequestGetPropDir request_get_propdir_fields = 5;
+    optional RequestSetProps request_set_props_fields = 6;
+    optional RequestSetPropDir request_set_propdir_fields = 7;
+    optional RequestRemoveProps request_remove_props_fields = 8;
+    optional RequestRemovePropDir request_remove_propdir_fields = 9;
+    optional RequestNotifyObjects request_notify_objects_fields = 10;
+    optional RequestNotifyContents request_notify_contents_fields = 11;
+    optional RequestLookupNameFromLocation request_lookup_name_from_location_fields = 12;
+    optional RequestGetPlayerByName request_get_player_by_name_fields = 13;
+    optional RequestGetOwner request_get_owner_fields = 14;
+    optional RequestGetLocation request_get_location_fields = 15;
+    optional RequestGetType request_get_type_fields = 16;
+    optional RequestGetExits request_get_exits_fields = 17;
+    optional RequestGetContents request_get_contents_fields = 18;
+    optional RequestGetObjectHome request_get_object_home = 19;
+    optional RequestCreateObject request_create_object_fields = 20;
+    optional RequestDeleteObject request_delete_object_fields = 21;
+    optional RequestUndeleteObject request_undelete_object_fields = 22;
+    optional RequestMoveObject request_move_object_fields = 23;
+    optional RequestGetObjectPrototypes request_get_object_prototypes_fields = 24;
+    optional RequestSetObjectPrototypes request_set_object_prototypes_fields = 25;
+    optional RequestConvertObject request_convert_object_fields = 26;
+    optional RequestCheckPassword request_check_password_fields = 27;
+    optional RequestChangePassword request_change_password_fields = 28;
+}
+
+// Request the values of specific properties. The response should give the results
+// back in the order they were recieved.
+// Response message: ResponseProps or ResponseAPIStatus (if failure)
+message RequestGetProps
+{
+  required MuStarDatabase.Ref object_id = 1;
+  repeated string propnames = 2;
+}
+
+// Get all the props on an object. Returns them in a set of key-value pairs.
+// Response message: ResponseDict or ResponseAPIStatus 
+message RequestGetAllProps
+{
+  required MuStarDatabase.Ref object_id = 1;
+}
+
+// Get a dictionary of key-value pairs for a propdir.
+// Response message: ResponseDict or ResponseAPIStatus
+message RequestGetPropDir
+{
+  required MuStarDatabase.Ref object_id = 1;
+  required string dirnane = 2;
+}
+
+// Set some props
+// Response message: ResponseAPIStatus
+message RequestSetProps
+{
+  required MuStarDatabase.Ref object_id = 1;
+  repeated MuStar.DictEntry props = 2;
+}
+
+// Set a directory of property using a set of key-value pairs within it.
+// Response message: ResponseAPIStatus
+message RequestSetPropDir
+{
+  required MuStarDatabase.Ref object_id = 1;
+  required string propdir = 2;
+  repeated MuStar.DictEntry props = 3;
+}
+
+// Remove properties
+// Response message: ResponseAPIStatus
+message RequestRemoveProps
+{
+  required MuStarDatabase.Ref object_id = 1;
+  repeated string propname = 2;
+}
+
+// Remove a directory of props
+// Response message: ResponseAPIStatus
+message RequestRemovePropDir
+{
+  required MuStarDatabase.Ref object_id = 1;
+  repeated string propdir = 2;
+}
+
+// Remove a directory of props
+// Response message: ResponseAPIStatus
+message RequestNotifyObjects
+{
+  repeated MuStarDatabase.Ref object_id = 1;
+  required string message = 2;
+}
+
+// Notify a particular room, sans a list of excluded DBREFs.
+// Response message: ResponseAPIStatus
+message RequestNotifyContents
+{
+  required MuStarDatabase.Ref object_id = 1;
+  repeated string messages = 2;
+  repeated MuStarDatabase.Ref exclusions = 3;
+}
+
+// Get DBREFs that have names that match a string or pattern 
+// from a specific reference point.
+// Pattern determines whether to try to grab all that match
+// If false, attempt to get only one item.
+// Response message: ResponseListOfRefs, or ResponseAPIStatus
+message RequestLookupNameFromLocation
+{
+  required MuStarDatabase.Ref reference_point = 1;
+  required string name = 2;
+  required bool pattern = 3;
+}
+
+// Find a player. If 'absolute' is enabled, the name must
+// match precisely (not counting case sensativity)
+// Otherwise, picking a partial name from a connected player should be valid.
+message RequestGetPlayerByName
+{
+  required string name = 1;
+}
+
+// Get the owner of an object
+// Response message: ResponseListOfRefs or ResponseAPIStatus
+message RequestGetOwner
+{
+  required MuStarDatabase.Ref object_id = 1;
+}
+
+// Get the location of an object
+// Response message: ResponseListOfRefs or ResponseAPIStatus
+message RequestGetLocation
+{
+  required MuStarDatabase.Ref object_id = 1;
+}
+
+// Get the type of an object.
+// Response message: ResponseProps or ResponseAPIStatus
+message RequestGetType
+{
+  required MuStarDatabase.Ref object_id = 1;
+}
+
+// Get the exits on an object
+// Response message: ResponseListOfRefs or ResponseAPIStatus
+message RequestGetExits
+{
+  required MuStarDatabase.Ref object_id = 1;
+}
+
+// Get the contents of an object
+// Response message: ResponseListOfRefs or ResponseAPIStatus
+message RequestGetContents
+{
+  required MuStarDatabase.Ref object_id = 1;
+}
+
+// Get the home of an object
+// Response message: ResponseListOfRefs or ResponseAPIStatus
+message RequestGetObjectHome
+{
+  required MuStarDatabase.Ref object_id = 1;
+}
+
+// Create an object of a specified type.
+// The object's password field should be set no matter what type it is
+// if a password is specified.
+// If a player's password is not specified, the player can't be signed
+// into with a password, but should be created anyway.
+// Response message: ResponseListOfRefs or ResponseAPIStatus
+message RequestCreateObject
+{
+  required string name = 1;
+  required string type = 2;
+  optional string password = 3;
+}
+
+// Delete an object.
+// This request should probably automatically fail if used on a player
+// type. They should need to be turned into a normal object first.
+// Response message: ResponseAPIStatus
+message RequestDeleteObject
+{
+  required MuStarDatabase.Ref object_id = 1;
+}
+
+// Attempt to recover a deleted object.
+// Response message: ResponseAPIStatus
+message RequestUndeleteObject
+{
+  required MuStarDatabase.Ref object_id = 1;
+}
+
+
+// This request gets you from A to B.
+// Response message: ResponseAPIStatus
+message RequestMoveObject
+{
+  required MuStarDatabase.Ref source = 1;
+  required MuStarDatabase.Ref destination = 2;
+}
+
+// Get the objects that are serving as prototypes for this one.
+// Response message: ResponseListofRefs, ResponseAPIStatus
+message RequestGetObjectPrototypes
+{
+  required MuStarDatabase.Ref object_id = 1;
+}
+
+// Set the objects that are serving as prototypes for this one.
+// Response message: ResponseAPIStatus
+message RequestSetObjectPrototypes
+{
+  required MuStarDatabase.Ref object_id = 1;
+}
+
+
+// Attempts to convert one object type to another.
+// Response message: ResponseAPIStatus
+message RequestConvertObject
+{
+  required MuStarDatabase.Ref object_id = 1;
+  required string type = 2;
+}
+
+// Checks to see if a string authenticates properly against an objects password field.
+// Response message: ResponseAPIStatus
+message RequestCheckPassword
+{
+  required MuStarDatabase.Ref object_id = 1;
+  required string password = 2;
+}
+
+// Change a password. If adminoverride is specified, and the user is an admin,
+// and the target is not an admin, the password should be overwritten.
+// If no new password is specified, the password field should be cleared, locking the
+// account.
+// If no old password is specified, and the admin override is not set, this should fail.
+// Response message: ResponseAPIStatus
+message RequestChangePassword
+{
+  required MuStarDatabase.Ref object_id = 1;
+  optional string oldpassword = 2;
+  optional string newpassword = 3;
+  optional bool adminoverride = 4;
+}

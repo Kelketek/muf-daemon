@@ -1,0 +1,8 @@
+package MuStarDatabase;
+
+// A dbref, in the prototype system.
+message Ref
+{
+  required int32 site_id = 1;
+  required int32 object_id = 2;
+}

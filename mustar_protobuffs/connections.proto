@@ -1,0 +1,50 @@
+package MuStarConnection;
+
+import "ref.proto";
+
+//
+// This file has all the messages which go back and forth between the
+// connection server and the core.
+//
+
+
+// ConnectionManage -> Core
+// Used to indicate if someone connects.
+// Right now no protocol is specified since all are text.
+// Multiple connections disallowed.
+message PlayerConnected
+{
+  required MuStarDatabase.Ref object_id = 1;
+}
+
+// ConnectionManage -> Core
+// Used to indicate if someone disconnects.
+// Right now no protocol is specified since all are text.
+// Multiple connections disallowed.
+message PlayerDisconnected
+{
+  required MuStarDatabase.Ref object_id = 1;
+}
+
+// Core -> ConnectionManager
+// Sends a text message to the provided player object IDs
+message SendMessage
+{
+  repeated MuStarDatabase.Ref player_ids = 1;
+  required string data = 2;
+}
+
+// ConnectionManager -> Core
+// Sent when a player has typed something and hit <enter>.
+message PlayerInput
+{
+  required MuStarDatabase.Ref player_id = 1;
+  required string data = 2;
+}
+
+// Core -> ConnectionManager
+// Sent to force a player to disconnect.
+message DisconnectPlayer
+{
+  repeated MuStarDatabase.Ref player_ids = 1;
+}
