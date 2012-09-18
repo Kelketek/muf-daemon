@@ -4,7 +4,7 @@ sys.path.append("muf_modules")
 sys.path.append("../../prototype")
 import traceback
 
-from twisted.internet.protocol import Protocol, Factory
+from twisted.internet.protocol import Protocol, Factory, ClientCreator
 from twisted.internet import reactor
 from twisted.protocols import amp
 
@@ -61,7 +61,7 @@ def compile_prog(fields):
                               reftrans(fields.trigger),
                               fields.command
                              ],
-                  'api' : pf,
+                  'api' : client,
                   'v_list' :  ["me", "loc", "trigger", "command"],
                   'debug' : fields.debug
                 }
@@ -71,6 +71,17 @@ def compile_prog(fields):
         del ptable[fields.pid]
     return code, message
 
+def api_return:
+    print "It came back!"
+
+def api_send(muf_env, message):
+    transmission = API_program_pb2.ResponseStatus()
+    transmission.status_code = 1
+    transmission.request_message.CopyFrom(message)
+    print transmission
+    call = muf_env["api"].callRemote(ProtoMsg, (transmission.SerializeToString()))
+    call.addCallback(api_return)
+    raise MufRPC
 
 def run_command(message):
     if message.type == API_program_pb2.INIT:
@@ -93,7 +104,7 @@ class Muf(amp.AMP):
     ProtoMsg.responder(data_received) 
 
 if __name__ == "__main__":
-    pf = Factory()
-    pf.protocol = Muf
-    reactor.listenTCP(1234, pf)
+    client = Factory()
+    client.protocol = Muf
+    reactor.listenTCP(1234, client)
     reactor.run()
